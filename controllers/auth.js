@@ -15,7 +15,7 @@ const login = function(req,res){
             user
             .comparePassword(password, function(err, isMatch){  
                 if(isMatch){
-                    var token = jwt.sign({ id:user.id, name:user.name, email:user.email }, process.env.tokenSecretKey);
+                    var token = jwt.sign({ id:user._id, name:user.name, email:user.email }, process.env.tokenSecretKey);
                     res
                         .status(200)
                         .json({

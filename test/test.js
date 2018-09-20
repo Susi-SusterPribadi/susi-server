@@ -211,7 +211,7 @@ describe('Prescription' , function () {
         // mongoose.set('useCreateIndex', true
     })
 
-    it('Get /prescription should get a prescrition of single user who have credential', done => {
+    it('Get /prescription should get prescritions of single user who have credential', done => {
         let user = {
             email: 'susi@mail.com',
             password: 'abc123'
@@ -239,6 +239,73 @@ describe('Prescription' , function () {
     })
 })
 
+
+describe('Config' , function () {
+    beforeEach( function (done) {
+        mongoose.connect(`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
+        , { useNewUrlParser: true } 
+        , function(err){
+            if(err) console.log(err);
+            console.log("connect with mongoose test")
+            Users
+                .create({
+                    name : 'susi',
+                    birthdate: new Date(),
+                    email : 'susi@mail.com',
+                    password : 'abc123'
+                })
+                .then( res => {
+                    console.log("success create from mocha")
+                    done()
+                })
+                .catch( err => {
+                    console.log(err)
+                    done()
+                })
+            
+        })
+    })
+
+    afterEach( function(done){
+        mongoose.connect(`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
+            , { useNewUrlParser: true } 
+            , function(err){
+                if(err) console.log(err);
+                Users.collection.drop()
+                done()
+        })
+        // mongoose.set('useCreateIndex', true
+    })
+
+    it('Get /config should get a config of single user who have credential', done => {
+        let user = {
+            email: 'susi@mail.com',
+            password: 'abc123'
+        }
+         
+        chai.request(server).post('/auth').send(user)
+        .end( (err, res) => {
+            if( err ) console.log(err)
+            let authorization = res.body.authorization
+            console.log('authorization', authorization)
+            let config = {
+                morning: 6,
+                afternoon: 12,
+                night: 18,
+                customize: 2
+            }
+            chai.request(server).get('/config').set('authorization', authorization)
+            .send(config)
+            .end( (err, res) => {
+                if (err) console.log(err)
+                console.log(res.body)
+                done()
+            })
+        })
+        // console.log(authorization)        
+    })
+
+})
 
 
 

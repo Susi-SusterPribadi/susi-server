@@ -7,12 +7,13 @@ const isUserActive = function (req, res, next) {
     jwt.verify(req.headers.authorization, process.env.tokenSecretKey
         ,   function ( err, decoded ) {
                 if (err) res.status(400).json({msg:"invalid token"})
+                console.log(decoded, "=========")
                 User
-                .find({
-                    id : decoded.id,
+                .findOne({
+                    _id : decoded.id,
                     email : decoded.email,
                 })
-                .then(response => {
+                .then( response => {
                     console.log('decoded result : ', response)
                     next()
                 })
