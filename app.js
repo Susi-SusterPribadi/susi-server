@@ -8,16 +8,7 @@ const mongoose = require('mongoose')
 const busboy = require('connect-busboy')
 const busboyBodyParser = require('busboy-body-parser')
 
-// const http = require('http')
-
 require('dotenv').config()
-
-const app = express();
-
-
-
-// console.log(process.env.dbProdAdm)
-//set MONGOURI
 
 let MONGO_URI = {
   development:`mongodb://${process.env.dbProdAdm}:${process.env.dbProdAdm}@ds259912.mlab.com:59912/susidb`,
