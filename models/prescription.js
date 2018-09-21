@@ -15,7 +15,8 @@ const PrescriptionSchema = new Schema({
         required: "Please input expire date",
     },
     stock: Number,
-    schedule: [{type: Schema.Types.ObjectId, ref: 'Schedule' }]
+    schedule: [{type: Schema.Types.ObjectId, ref: 'Schedule' }],
+    userId: {type: Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps : true })
 
 const Prescription = mongoose.model('Prescription', PrescriptionSchema)

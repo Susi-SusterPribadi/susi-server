@@ -34,6 +34,7 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const prescriptionRouter = require('./routes/prescription');
 const configRouter = require('./routes/config')
+const scheduleRouter = require('./routes/schedule')
 
 
 
@@ -53,6 +54,7 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/prescription', prescriptionRouter)
 app.use('/config', configRouter)
+app.use('/schedule', scheduleRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

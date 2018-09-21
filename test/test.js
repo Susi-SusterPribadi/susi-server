@@ -307,6 +307,30 @@ describe('Config' , function () {
 
 })
 
+describe('Schedule', () => {
+    it('get connection', done => {
+        chai.request(server).get('/schedule')
+        .end( (err, res) => {
+            if (err) console.log(err)
+            res.should.have.status(200)
+            res.should.be.json
+            res.body.should.be.a('object')
+            res.body.should.have.property('prescription')
+            res.body.prescription.should.have.property('label')
+            res.body.prescription.should.have.property('route')
+            res.body.prescription.should.have.property('expDate')
+            res.body.prescription.should.have.property('stock')
+            res.body.prescription.should.have.property('schedule')
+            res.body.prescription.schedule.should.be.a('array')
+            
+            // res.body.prescription.should.have.property('password')
+            // res.body.prescription.name.should.equal('amsal')
+            
+            done()
+        })
+    })
+})
+
 
 
 
