@@ -35,6 +35,7 @@ module.exports = {
             info: 'Detect Text Success',
             data: data
           })
+        console.log('result recognition ==>',data)
       }
     });
   }
