@@ -19,8 +19,11 @@ const login = function(req,res){
                     res
                         .status(200)
                         .json({
-                            msg : "login successfully",
+                            message : "login successfully",
                             authorization : token,
+                            id: user._id,
+                            email: user.email,
+                            name: user.name
                         })
                 } else {
                     res

@@ -1,7 +1,7 @@
-
+const Prescription = require('../models/prescription')
 
 const get = (req, res, next) => {
-    
+    let userId = '5ba34bb4c70a9640927e9caa'
     let times = 3
     let startDate = new Date()
     let config = {
