@@ -5,7 +5,13 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors')
 const mongoose = require('mongoose')
+// const http = require('http')
+
 require('dotenv').config()
+
+const app = express();
+
+
 
 // console.log(process.env.dbProdAdm)
 //set MONGOURI
@@ -29,7 +35,7 @@ const authRouter = require('./routes/auth');
 const prescriptionRouter = require('./routes/prescription');
 const configRouter = require('./routes/config')
 
-const app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
