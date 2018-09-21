@@ -3,6 +3,8 @@ const Busboy = require('busboy')
 
 module.exports = {
   uploadS3: (req, res, next) => {
+    console.log('req headers dari uploads3 =>', req.headers)
+    console.log('req file dari uploads3 =>', req.files)
     let s3bucket = new AWS.S3({
       accessKeyId: process.env.IAM_USER_KEY,
       secretAccessKey: process.env.IAM_USER_SECRET,
@@ -11,7 +13,7 @@ module.exports = {
 
     const busboy = new Busboy({ headers: req.headers })
     busboy.on('finish', () => {
-      const file = req.files.element1
+      const file = req.files.image
       s3bucket.createBucket(() => {
         var params = {
           Bucket: process.env.BUCKET_S3,
