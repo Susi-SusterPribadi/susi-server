@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const User = require('../models/users')
 module.exports = function (io) { 
-
+    
     let MONGO_URI = {
         development:`mongodb://${process.env.dbProdAdm}:${process.env.dbProdAdm}@ds259912.mlab.com:59912/susidb`,
         test:`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
@@ -15,9 +15,9 @@ module.exports = function (io) {
 
             User.find()
             .then( res => {
-
-                console.log('data dari base :', res)
                 
+                // console.log("web socket : ", io)
+                console.log('data dari base :', res)
                 io.on('connection', (socket) => {
                     
                     console.log('A client just joined on');
@@ -41,7 +41,9 @@ module.exports = function (io) {
                                 io.emit(`${el._id}`, msg)
                         });
                     })
-                    
+
+
+
                 });
 
             })
