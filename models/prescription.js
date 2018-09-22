@@ -18,7 +18,8 @@ const PrescriptionSchema = new Schema({
     times: Number,
     schedule: [{type: Schema.Types.ObjectId, ref: 'Schedule' }],
     userId: {type: Schema.Types.ObjectId, ref: 'User' },
-    isActive: Boolean
+    isActive: Boolean,
+    isCustomize: Boolean,
 }, { timestamps : true })
 
 const Prescription = mongoose.model('Prescription', PrescriptionSchema)

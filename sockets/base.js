@@ -34,12 +34,14 @@ module.exports = function (io) {
                         }
                     });
 
+                    //event by userId
                     res.forEach( el => {
                         socket.on(`${el._id}`, function(msg){
                             console.log(`message from ${socket.id} ; ${el._id} : ` + msg);
                                 io.emit(`${el._id}`, msg)
                         });
                     })
+                    
                 });
 
             })
