@@ -23,7 +23,7 @@ const create = async ({body, query}, res) => {
         let config = new Config(body)
             config.userId = query.userId
         let configOnSave = await config.save()
-        res.status(200).json({info: 'successfully create setup your config', response: configOnSave})
+        res.status(200).json({info: 'successfully create setup your config', body: configOnSave})
     } catch (error) {
         res.status(400).json({info: err})
     }
@@ -31,14 +31,13 @@ const create = async ({body, query}, res) => {
 
 const update = async ({body, query}, res) => {
     try{
-        let config = new Config(body)
-        let configUpdate = await config.updateOne( { _id: query.configId }, { $set:config})
-        res.status(200).json( { info:'succesfully upadated your config', configUpdate } )
+        let config = await Config.findOneAndUpdate({_id: query.configId}, { $set:body} )
+        let newConfig = await Config.findById(query.configId)
+        res.status(200).json( { info:'succesfully upadated your config', body:newConfig } )
     } catch ( error ){
         res.status(400).json({message:error})
     }
 }
-
 
 module.exports = {
     getById,
