@@ -34,7 +34,6 @@ const create = (req, res) => {
                 morning: req.body.morning,
                 afternoon: req.body.afternoon,
                 night: req.body.night,
-                customize: req.body.customize,
                 userId: decoded.id
             })
             .then( response => {

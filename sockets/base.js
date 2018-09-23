@@ -17,7 +17,7 @@ module.exports = function (io) {
             .then( res => {
                 
                 // console.log("web socket : ", io)
-                console.log('data dari base :', res)
+                // console.log('data dari base :', res)
                 io.on('connection', (socket) => {
                     
                     console.log('A client just joined on');
@@ -35,12 +35,12 @@ module.exports = function (io) {
                     });
 
                     //event by userId
-                    res.forEach( el => {
-                        socket.on(`${el._id}`, function(msg){
-                            console.log(`message from ${socket.id} ; ${el._id} : ` + msg);
-                                io.emit(`${el._id}`, msg)
-                        });
-                    })
+                    // res.forEach( el => {
+                    //     socket.on(`${el._id}`, function(msg){
+                    //         console.log(`message from ${socket.id} ; ${el._id} : ` + msg);
+                    //             io.emit(`${el._id}`, msg)
+                    //     });
+                    // })
 
 
 
