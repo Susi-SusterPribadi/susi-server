@@ -23,7 +23,8 @@ const login = function(req,res){
                             authorization : token,
                             id: user._id,
                             email: user.email,
-                            name: user.name
+                            name: user.name,
+                            birthdate: user.birthdate
                         })
                 } else {
                     res

@@ -27,27 +27,51 @@ const generateSchedule = async (config, prescription) => {
         }
     } else {
         let timeOnConfig = []
-
+        let minuteOnConfig = []
+        let secondOnConfig = []
         
+        let morning = Number(config.morning.split(":")[0])
+        let minuteMorning = Number(config.morning.split(":")[1])
+        let secondMorning = Number(config.morning.split(":")[2])
+
+        let afternoon = Number(config.afternoon.split(":")[0])
+        let minuteAfternoon = Number(config.afternoon.split(":")[1])
+        let secondAfternoon = Number(config.afternoon.split(":")[2])
+
+        let night = Number(config.night.split(":")[0])
+        let minuteNight = Number(config.night.split(":")[1])
+        let secondNight = Number(config.night.split(":")[2])
+        
+        console.log("morning :",morning, "afternoon :",afternoon, "night :", night)
         let cycle = 0
         switch(times){
-            case 3 : timeOnConfig = [config.morning, config.afternoon, config.night]; break;
-            case 2 : timeOnConfig = [config.morning, config.night]; break;
-            case 1 : timeOnConfig = [config.morning]; break;
+            case 3 : timeOnConfig = [morning, afternoon, night]; 
+                     minuteOnConfig = [minuteMorning, minuteAfternoon, minuteNight];
+                     secondOnConfig = [secondMorning, secondAfternoon, secondNight]; 
+                     break;
+            case 2 : timeOnConfig = [morning, night]; 
+                     minuteOnConfig = [minuteMorning, minuteNight]
+                     secondOnConfig = [secondMorning, secondNight]
+                     break;
+            case 1 : timeOnConfig = [morning];
+                     minuteOnConfig = [minuteMorning]
+                     secondOnConfig = [secondMorning] 
+                     break;
+
             default : []
         }
         
-        //function getFirstTime
+    //     //function getFirstTime
         let firstHours = startDatePrescription.getHours().toLocaleString()
         let firstDrugs = 0
-        if(firstHours > 0 && firstHours < timeOnConfig[1]){
+        if(firstHours > 0 && firstHours <= timeOnConfig[0]){
             firstDrugs = timeOnConfig[0]
-        }else if ( firstHours > timeOnConfig[0] && firstHours < timeOnConfig[2]) {
+        }else if ( firstHours > timeOnConfig[0] && firstHours <= timeOnConfig[1]) {
             firstDrugs = timeOnConfig[1]
         }else {
-            firstDrugs = config.night[2]
+            firstDrugs = timeOnConfig[timeOnConfig.length-1]
         }
-        console.log("first drugs :", firstDrugs)
+        console.log("first drugs :", firstDrugs, timeOnConfig, minuteOnConfig)
         while(stock > 0 ){
             let j = cycle === 0 ? timeOnConfig.indexOf(firstDrugs) : 0;
             // console.log(j)
@@ -57,26 +81,28 @@ const generateSchedule = async (config, prescription) => {
                 let month = scheduleGetTime.getMonth()
                 let date = scheduleGetTime.getDate()
                 let hour = timeOnConfig[i]
+                let minute = minuteOnConfig[i]
+                let second = secondOnConfig[i]
                 let diff = timeOnConfig[i] - timeOnConfig[i-1]
                 if(stock > 0){
-                    console.log(new Date(year, month, date, hour).toLocaleString(), 'stock : ', stock, diff)
+                    console.log(new Date(year, month, date, hour, minute, second).toLocaleString(), 'stock : ', stock, diff)
                     let newTime = new Date(year, month, date, hour)
                     let newSchedule = {
                         userId:prescription.userId,
                         prescriptionId: prescription._id,
                         time: newTime
                     }
-                    console.log(newSchedule)
+                    // console.log(newSchedule)
                     let schedule = new Schedule(newSchedule)
                     let scheduleSave = await schedule.save()
                     arrSchedule.push(scheduleSave._id)
                 }
-                startDatePrescription.setHours(startDatePrescription.getHours() + (diff ? diff : 0))
+                // startDatePrescription.setHours(startDatePrescription.getHours() + (diff ? diff : 0))
                 if(timeOnConfig.length-1  === i){
                     startDatePrescription.setDate(startDatePrescription.getDate() + 1)
                 }
                 cycle++
-                stock --
+                stock--
             }
         }
     } 
@@ -88,18 +114,14 @@ const generateSchedule = async (config, prescription) => {
 }
 
 
-const get = ( req, res) => {
-    
-    Prescription
-    .find({
-        userId: req.query.userId
-    })
-    .then( response => {
-        res.status(200).json({response})
-    })
-    .catch( err => {
-        res.status(400).json({message:err})
-    })
+const get = async ( { query }, res) => {
+    try{
+        let prescription = await Prescription.find({userId: query.userId}).populate("schedule").exec()
+        console.log(prescription)
+        res.status(200).json({ body: prescription})
+    }catch ( error ){
+        res.status(400).json({message:error})
+    }
 }
 
 const add = async ( { body } , res) => {
@@ -107,7 +129,7 @@ const add = async ( { body } , res) => {
     // if( new Date() < new Date(body.expDate)){
         try{
 
-            console.log("presription /post request: ",body)
+            // console.log("presription /post request: ",body)
             let prescription =  new Prescription(body)
             let config = await Config.findOne({userId:body.userId})
             let prescriptionOnSave =  await prescription.save( )
