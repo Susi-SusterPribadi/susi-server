@@ -9,8 +9,8 @@ const userSchema = new Schema({
         required: "Please input name",
     },
     birthdate:{
-    type: Date,
-    required: "Please input your birthdate",
+        type: Date,
+        required: "Please input your birthdate",
     },
     email:{
       type: String,

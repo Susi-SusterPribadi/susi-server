@@ -5,7 +5,6 @@ const ConfigSchema = new Schema({
     morning: Number,
     afternoon: Number,
     night: Number,
-    customize: Number,
     userId: {type: Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps:true })
 
