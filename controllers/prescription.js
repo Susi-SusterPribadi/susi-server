@@ -2,8 +2,6 @@ const Prescription = require('../models/prescription')
 const Config  = require('../models/config')
 const Schedule = require('../models/schedule')
 
-
-
 const generateSchedule = async (config, prescription) => {
     let arrSchedule = []
     //userId, prescriptonId, time
