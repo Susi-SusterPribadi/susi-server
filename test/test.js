@@ -12,7 +12,7 @@ const Users = require('../models/users')
 // mongoose
 const mongoose = require('mongoose')
 
-const server = 'http://localhost:3000'
+const server = 'http://localhost:3030'
 
 mongoose.connect(`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
     , { useNewUrlParser: true } 
