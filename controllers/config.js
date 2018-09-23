@@ -1,15 +1,10 @@
 const Config = require('../models/config')
-const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const getById = (req, res) => {
-    jwt.verify(req.headers.authorization, process.env.tokenSecretKey 
-        , function(err, decoded) {
-            if (err) res.status(400).json({msg:"invalid token"})
-
             Config
             .findOne({
-                userId: decoded.id
+                userId: req.query.userId
             })
             .then( response => {
                 if(response){
@@ -21,31 +16,32 @@ const getById = (req, res) => {
             .catch( err => {
                 res.status(400).json({info:err})
             })
-        })
 }
 
-const create = (req, res) => {
-    jwt.verify(req.headers.authorization, process.env.tokenSecretKey
-        , (err, decoded) => {
-            if(err) res.status(400).json({msg:"invalid token"})
-
-            Config
-            .create({
-                morning: req.body.morning,
-                afternoon: req.body.afternoon,
-                night: req.body.night,
-                userId: decoded.id
-            })
-            .then( response => {
-                res.status(200).json({info: 'successfully create setup your config', response: response})
-            })
-            .catch( err => {
-                res.status(400).json({info: err})
-            })
-        })
+const create = async ({body, query}, res) => {
+    try {
+        let config = new Config(body)
+            config.userId = query.userId
+        let configOnSave = await config.save()
+        res.status(200).json({info: 'successfully create setup your config', response: configOnSave})
+    } catch (error) {
+        res.status(400).json({info: err})
+    }
 }
+
+const update = async ({body, query}, res) => {
+    try{
+        let config = new Config(body)
+        let configUpdate = await config.updateOne( { _id: query.configId }, { $set:config})
+        res.status(200).json( { info:'succesfully upadated your config', configUpdate } )
+    } catch ( error ){
+        res.status(400).json({message:error})
+    }
+}
+
 
 module.exports = {
     getById,
-    create
+    create,
+    update
 }

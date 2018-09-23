@@ -105,9 +105,8 @@ const get = ( req, res) => {
 }
 
 const add = async ( { body } , res) => {
-    console.log(new Date())
-    
-    if( new Date() < new Date(body.expDate)){
+   
+    // if( new Date() < new Date(body.expDate)){
         try{
 
             console.log("presription /post request: ",body)
@@ -128,9 +127,9 @@ const add = async ( { body } , res) => {
         }catch (error) {
             res.status(400).json({message:error})
         }
-    } else {
-        res.status(400).json({message:'your medicine is expired!'})
-    } 
+    // } else {
+    //     res.status(400).json({message:'your medicine is expired!'})
+    // } 
 }
 
 
