@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const isUserActive = function (req, res, next) {
-    
+    console.log('req headers from middleware ==>', req.headers)
     jwt.verify(req.headers.authorization, process.env.tokenSecretKey
         ,   function ( err, decoded ) {
                 if (err) res.status(400).json({msg:"invalid token"})
