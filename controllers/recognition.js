@@ -28,23 +28,23 @@ module.exports = {
             errMessage: err
           })
       } else {
-        var arrResult = []
-        data.TextDetections.map(result => {
-          const regex = /\b2X|\b2X1|\b3X|\b3X1/g
-          const word = regex.test(result.DetectedText)
-          if (word) {
-            const label = result.DetectedText.split('X')
-            arrResult.push(label[0])
-          }
+        let arrResult = []
+        let hasilAkhir = []
+        data.TextDetections.map(obat => {
+          arrResult.push(obat.DetectedText)
         })
-        res
-          .status(200)
-          .json({
-            info: 'Detect Text Success',
-            data: arrResult
-          })
-        console.log('arrResult ==>',arrResult)
-        console.log('result recognition ==>',data)
+
+        arrResult.splice(1, 4).map(obatSplit => {
+          hasilAkhir.push(obatSplit.split(': ')[1])
+        })
+
+        res.status(200).json({
+          info: "Data detect text success",
+          data: hasilAkhir
+        })
+
+        console.log('<============== hasil recognition ========> ')
+        console.log(hasilAkhir)
       }
     });
   }
