@@ -14,6 +14,7 @@ const isUserActive = function (req, res, next) {
                     email : decoded.email,
                 })
                 .then( response => {
+                    req.userId = response._id
                     console.log('decoded result : ', response)
                     next()
                 })
