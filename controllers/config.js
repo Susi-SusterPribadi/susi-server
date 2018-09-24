@@ -25,16 +25,28 @@ const create = async ({body, query}, res) => {
         let configOnSave = await config.save()
         res.status(200).json({info: 'successfully create setup your config', body: configOnSave})
     } catch (error) {
-        res.status(400).json({info: err})
+        res.status(400).json({info: error})
     }
 }
 
 const update = async ({body, query}, res) => {
     try{
-        let config = await Config.findOneAndUpdate({_id: query.configId}, { $set:body} )
-        let newConfig = await Config.findById(query.configId)
-        res.status(200).json( { info:'succesfully upadated your config', body:newConfig } )
+        let config = await Config.findOneAndUpdate({userId: query.userId}, { $set:body} )
+        let newConfig = await Config.findOne(config._id)
+        console.log(query, body, newConfig)
+        res.status(200).json( { info:'succesfully upadated your config', body: newConfig } )
     } catch ( error ){
+        res.status(400).json({message:error})
+    }
+}
+
+const posting = async ({body, query}, res ) => {
+    try{
+        let configOnSearch = await Config.findOne({userId: query.userId})
+        
+        configOnSearch ? update({body, query}, res ) : create({body, query}, res ) ;
+
+    }catch (error) {
         res.status(400).json({message:error})
     }
 }
@@ -42,5 +54,6 @@ const update = async ({body, query}, res) => {
 module.exports = {
     getById,
     create,
-    update
+    update,
+    posting
 }
