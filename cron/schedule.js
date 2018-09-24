@@ -12,6 +12,7 @@ module.exports = (data) => {
  let hour = new Date(data.time).getHours()
  let minute = new Date(data.time).getMinutes()
  let second = new Date(data.time).getSeconds()
+
  console.log(second, minute, hour, date, month, '*')
  let schedule = new CronJob(`${second} ${minute} ${hour} ${date} ${month} *`, function() {
     let MONGO_URI = {
@@ -29,7 +30,10 @@ module.exports = (data) => {
                     //connect chatbot
                     console.log(new Date().toLocaleString())
                     console.log(user.name, "saatnya makan obat :", prescription.label);
+
+                    //on talking, may pending in 10 minutes later
                     await Schedule.findOneAndDelete({_id:data._id})
+
                 }else {
                     console.log(prescription.label, "schedule di hapus")
                     schedule.stop()
@@ -41,5 +45,4 @@ module.exports = (data) => {
         })
         
       }, null, true, 'Asia/Jakarta');
- 
 }

@@ -52,8 +52,11 @@ app.use('/auth', authRouter);
 app.use('/prescription', prescriptionRouter)
 app.use('/config', configRouter)
 app.use('/schedule', scheduleRouter)
-
 app.use('/aws', awsRouter)
+
+//cron on walk
+require('./cron/scheduleOnHour')()
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   res.status(404).json({

@@ -94,14 +94,15 @@ const generateSchedule = async (config, prescription) => {
                     let newSchedule = {
                         userId:prescription.userId,
                         prescriptionId: prescription._id,
-                        time: newTime
+                        time: newTime,
+                        isDrunk: false
                     }
                     let schedule = new Schedule(newSchedule)
                     let scheduleSave = await schedule.save()
                     // console.log(scheduleSave.time)
                     
                     //kue create
-                    kue.scheduleCreate(scheduleSave)
+                    // kue.scheduleCreate(scheduleSave)
                     arrSchedule.push(scheduleSave._id)
                 }
                 // startDatePrescription.setHours(startDatePrescription.getHours() + (diff ? diff : 0))
@@ -152,7 +153,7 @@ const add = async ( { body } , res) => {
             console.log('with populate', prescriptionWithSchedule)
             res.status(200).json(prescriptionWithSchedule)
         }catch (error) {
-            res.status(400).json({message:error})
+            res.status(400).json({message:error.message})
         }
     // } else {
     //     res.status(400).json({message:'your medicine is expired!'})

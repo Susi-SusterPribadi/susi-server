@@ -5,6 +5,7 @@ const PrescriptionSchema = new Schema({
     label:{
         type: String,
         required: "Please input label of medicines",
+        unique: true
     },
     route:{
         type: String,
@@ -18,8 +19,6 @@ const PrescriptionSchema = new Schema({
     times: Number,
     schedule: [{type: Schema.Types.ObjectId, ref: 'Schedule' }],
     userId: {type: Schema.Types.ObjectId, ref: 'User' },
-    isActive: Boolean,
-    isCustomize: Boolean,
 }, { timestamps : true })
 
 const Prescription = mongoose.model('Prescription', PrescriptionSchema)
