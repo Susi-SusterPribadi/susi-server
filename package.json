@@ -8,24 +8,26 @@
   },
   "dependencies": {
     "aws-sdk": "^2.318.0",
+    "bcryptjs": "^2.4.3",
     "busboy": "^0.2.14",
     "busboy-body-parser": "^0.3.2",
+    "chai": "^4.1.2",
+    "chai-http": "^4.2.0",
     "connect-busboy": "0.0.2",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",
+    "cron": "^1.4.1",
     "debug": "~2.6.9",
     "dotenv": "^6.0.0",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
     "jsonwebtoken": "^8.3.0",
+    "kue": "^0.11.6",
     "mocha": "^5.2.0",
     "mongoose": "^5.2.15",
     "morgan": "~1.9.0",
-    "socket.io": "^2.1.1",
-    "bcryptjs": "^2.4.3",
-    "chai": "^4.1.2",
-    "chai-http": "^4.2.0"
+    "socket.io": "^2.1.1"
   },
   "devDependencies": {
     "nyc": "^13.0.1"

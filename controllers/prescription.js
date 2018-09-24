@@ -1,6 +1,9 @@
 const Prescription = require('../models/prescription')
 const Config  = require('../models/config')
 const Schedule = require('../models/schedule')
+const kue = require('../helpers/kueCreate')
+
+
 
 const generateSchedule = async (config, prescription) => {
     let arrSchedule = []
@@ -10,7 +13,7 @@ const generateSchedule = async (config, prescription) => {
     console.log(startDatePrescription.toLocaleString(), 'start')
     let stock = prescription.stock
     let times = prescription.times
-    
+    console.log(stock, times)
     //to make function need parameter : config, times, stock, return array of scheduleOfDay        
     if(times > 3){
         let interval = 24 / times
@@ -26,6 +29,7 @@ const generateSchedule = async (config, prescription) => {
             stock -= times
         }
     } else {
+       
         let timeOnConfig = []
         let minuteOnConfig = []
         let secondOnConfig = []
@@ -60,11 +64,11 @@ const generateSchedule = async (config, prescription) => {
 
             default : []
         }
-        
+        console.log('wooowwww', config)
     //     //function getFirstTime
         let firstHours = startDatePrescription.getHours().toLocaleString()
         let firstDrugs = 0
-        if(firstHours > 0 && firstHours <= timeOnConfig[0]){
+        if(firstHours >= 0 && firstHours <= timeOnConfig[0]){
             firstDrugs = timeOnConfig[0]
         }else if ( firstHours > timeOnConfig[0] && firstHours <= timeOnConfig[1]) {
             firstDrugs = timeOnConfig[1]
@@ -86,15 +90,18 @@ const generateSchedule = async (config, prescription) => {
                 let diff = timeOnConfig[i] - timeOnConfig[i-1]
                 if(stock > 0){
                     console.log(new Date(year, month, date, hour, minute, second).toLocaleString(), 'stock : ', stock, diff)
-                    let newTime = new Date(year, month, date, hour)
+                    let newTime = new Date(year, month, date, hour, minute, second)
                     let newSchedule = {
                         userId:prescription.userId,
                         prescriptionId: prescription._id,
                         time: newTime
                     }
-                    // console.log(newSchedule)
                     let schedule = new Schedule(newSchedule)
                     let scheduleSave = await schedule.save()
+                    // console.log(scheduleSave.time)
+                    
+                    //kue create
+                    kue.scheduleCreate(scheduleSave)
                     arrSchedule.push(scheduleSave._id)
                 }
                 // startDatePrescription.setHours(startDatePrescription.getHours() + (diff ? diff : 0))
@@ -110,6 +117,8 @@ const generateSchedule = async (config, prescription) => {
     
     // console.log(schedule)
     // tomorrow.setDate(tomorrow.getDate() + 1);
+   
+
     return arrSchedule
 }
 
@@ -133,16 +142,14 @@ const add = async ( { body } , res) => {
             let prescription =  new Prescription(body)
             let config = await Config.findOne({userId:body.userId})
             let prescriptionOnSave =  await prescription.save( )
-
+            console.log(config)
             let schedule = await generateSchedule(config, prescriptionOnSave)
                 prescriptionOnSave.schedule = schedule
             
             await Prescription.updateOne({_id:prescriptionOnSave._id}, {$set:prescriptionOnSave})
             
             let prescriptionWithSchedule = await Prescription.findOne({_id:prescriptionOnSave._id}).populate('schedule').exec()
-            
             console.log('with populate', prescriptionWithSchedule)
-            
             res.status(200).json(prescriptionWithSchedule)
         }catch (error) {
             res.status(400).json({message:error})
