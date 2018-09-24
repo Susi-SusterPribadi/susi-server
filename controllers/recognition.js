@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk')
-const Busboy = require('busboy')
 
 const rekognition = new AWS.Rekognition({
   apiVersion: "2016-06-27",
@@ -41,9 +40,9 @@ module.exports = {
         res
           .status(200)
           .json({
-              info: 'Detect Text Success',
-              data: arrResult
-            })
+            info: 'Detect Text Success',
+            data: arrResult
+          })
         console.log('arrResult ==>',arrResult)
         console.log('result recognition ==>',data)
       }
