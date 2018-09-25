@@ -27,7 +27,8 @@
     "mocha": "^5.2.0",
     "mongoose": "^5.2.15",
     "morgan": "~1.9.0",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1"
   },
   "devDependencies": {
     "nyc": "^13.0.1"

@@ -30,6 +30,7 @@ const prescriptionRouter = require('./routes/prescription');
 const configRouter = require('./routes/config')
 const scheduleRouter = require('./routes/schedule')
 const awsRouter = require('./routes/aws')
+const chatRouter = require('./routes/chat')
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/prescription', prescriptionRouter)
 app.use('/config', configRouter)
 app.use('/schedule', scheduleRouter)
 app.use('/aws', awsRouter)
+app.use('/chat', chatRouter)
 
 //cron on walk
 require('./cron/scheduleOnHour')()

@@ -163,6 +163,8 @@ const createPrescription = async (data, emmit) => {
             let newPrescription = prescriptionList
                 await Schedule.deleteMany({prescriptionId: prescriptionList})
                 newPrescription.schedule = []
+                newPrescription.stock = data.stock
+                newPrescription.times = data.times
             let schedule = await generateSchedule(config, newPrescription)
                 newPrescription.schedule = schedule
 
@@ -175,7 +177,7 @@ const createPrescription = async (data, emmit) => {
 
             let prescription =  new Prescription(data)
             let prescriptionOnSave =  await prescription.save()
-            
+
             let schedule = await generateSchedule(config, prescriptionOnSave)
                 prescriptionOnSave.schedule = schedule
             
