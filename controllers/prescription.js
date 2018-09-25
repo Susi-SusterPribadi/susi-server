@@ -45,27 +45,28 @@ const generateSchedule = async (config, prescription) => {
         let night = Number(config.night.split(":")[0])
         let minuteNight = Number(config.night.split(":")[1])
         let secondNight = Number(config.night.split(":")[2])
-        
         console.log("morning :",morning, "afternoon :",afternoon, "night :", night)
         let cycle = 0
         switch(times){
             case 3 : timeOnConfig = [morning, afternoon, night]; 
                      minuteOnConfig = [minuteMorning, minuteAfternoon, minuteNight];
-                     secondOnConfig = [secondMorning, secondAfternoon, secondNight]; 
+                     secondOnConfig = [secondMorning, secondAfternoon, secondNight];
+                     onScheduleConfig = ['morning', 'afternoon', 'night']; 
                      break;
             case 2 : timeOnConfig = [morning, night]; 
-                     minuteOnConfig = [minuteMorning, minuteNight]
-                     secondOnConfig = [secondMorning, secondNight]
+                     minuteOnConfig = [minuteMorning, minuteNight];
+                     secondOnConfig = [secondMorning, secondNight];
+                     onScheduleConfig = ['morning', 'night'];
                      break;
             case 1 : timeOnConfig = [morning];
-                     minuteOnConfig = [minuteMorning]
-                     secondOnConfig = [secondMorning] 
+                     minuteOnConfig = [minuteMorning];
+                     secondOnConfig = [secondMorning];
+                     onScheduleConfig = ['morning']; 
                      break;
 
             default : []
         }
-        console.log('wooowwww', config)
-    //     //function getFirstTime
+        //function getFirstTime
         let firstHours = startDatePrescription.getHours().toLocaleString()
         let firstDrugs = 0
         if(firstHours >= 0 && firstHours <= timeOnConfig[0]){
@@ -78,7 +79,6 @@ const generateSchedule = async (config, prescription) => {
         console.log("first drugs :", firstDrugs, timeOnConfig, minuteOnConfig)
         while(stock > 0 ){
             let j = cycle === 0 ? timeOnConfig.indexOf(firstDrugs) : 0;
-            // console.log(j)
             for(let i = j; i < timeOnConfig.length; i++){
                 let scheduleGetTime = new Date(startDatePrescription)
                 let year = scheduleGetTime.getFullYear()
@@ -87,6 +87,7 @@ const generateSchedule = async (config, prescription) => {
                 let hour = timeOnConfig[i]
                 let minute = minuteOnConfig[i]
                 let second = secondOnConfig[i]
+                let onSchedule = onScheduleConfig[i]
                 let diff = timeOnConfig[i] - timeOnConfig[i-1]
                 if(stock > 0){
                     console.log(new Date(year, month, date, hour, minute, second).toLocaleString(), 'stock : ', stock, diff)
@@ -95,7 +96,8 @@ const generateSchedule = async (config, prescription) => {
                         userId:prescription.userId,
                         prescriptionId: prescription._id,
                         time: newTime,
-                        isDrunk: false
+                        isDrunk: false,
+                        onSchedule: onSchedule
                     }
                     let schedule = new Schedule(newSchedule)
                     let scheduleSave = await schedule.save()
@@ -135,29 +137,57 @@ const get = async ( { query }, res) => {
 }
 
 const add = async ( { body } , res) => {
-   
+    
+    
     // if( new Date() < new Date(body.expDate)){
         try{
-
-            // console.log("presription /post request: ",body)
-            let prescription =  new Prescription(body)
-            let config = await Config.findOne({userId:body.userId})
-            let prescriptionOnSave =  await prescription.save( )
-            console.log(config)
-            let schedule = await generateSchedule(config, prescriptionOnSave)
-                prescriptionOnSave.schedule = schedule
-            
-            await Prescription.updateOne({_id:prescriptionOnSave._id}, {$set:prescriptionOnSave})
-            
-            let prescriptionWithSchedule = await Prescription.findOne({_id:prescriptionOnSave._id}).populate('schedule').exec()
-            console.log('with populate', prescriptionWithSchedule)
-            res.status(200).json(prescriptionWithSchedule)
+            let newPrescription = await createPrescription(body, null)
+            console.log("create prescription: ", newPrescription, new Date(newPrescription.updatedAt).toLocaleString())
+            res.status(200).json(newPrescription)
         }catch (error) {
             res.status(400).json({message:error.message})
         }
     // } else {
     //     res.status(400).json({message:'your medicine is expired!'})
     // } 
+}
+
+const createPrescription = async (data, emmit) => {
+    //need mongoose connection and models
+    try {
+
+        let prescriptionList = await Prescription.findOne({label: data.label})
+        let config = await Config.findOne({userId: data.userId})
+        // console.log("find prescription : ",prescriptionList) 
+        if(prescriptionList){
+            let newPrescription = prescriptionList
+                await Schedule.deleteMany({prescriptionId: prescriptionList})
+                newPrescription.schedule = []
+            let schedule = await generateSchedule(config, newPrescription)
+                newPrescription.schedule = schedule
+
+            await Prescription.updateOne({_id:newPrescription._id}, {$set:newPrescription})
+            let prescriptionWithSchedule = await Prescription.findOne({_id:newPrescription._id}).populate('schedule').exec()
+            
+            return prescriptionWithSchedule
+
+        }else {
+
+            let prescription =  new Prescription(data)
+            let prescriptionOnSave =  await prescription.save()
+            
+            let schedule = await generateSchedule(config, prescriptionOnSave)
+                prescriptionOnSave.schedule = schedule
+            
+            await Prescription.updateOne({_id:prescriptionOnSave._id}, {$set:prescriptionOnSave})
+            
+            let prescriptionWithSchedule = await Prescription.findOne({_id:prescriptionOnSave._id}).populate('schedule').exec()
+            
+            return prescriptionWithSchedule
+        }
+    } catch (error) {
+        return error
+    }
 }
 
 

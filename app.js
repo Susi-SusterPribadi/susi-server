@@ -77,4 +77,12 @@ app.use(function(err, req, res, next) {
   });
 });
 
+const {getChat} = require('./helpers/mongoose')
+var stdin = process.openStdin();
+
+stdin.addListener('data', function(d) {
+  let word = d.toString().trim()
+  let userId = '5ba34bb4c70a9640927e9caa'
+  getChat(word, userId)
+});
 module.exports = app;
