@@ -41,18 +41,25 @@ module.exports = {
         console.log('<============== hasil recognition ========> ');
         console.log(hasilAkhir);
 
-        const data = {
+        const result = {
           userId: req.userId,
           label: hasilAkhir[0],
-          route: hasilAkhir[1],
-          expDate: hasilAkhir[2],
-          times: hasilAkhir[3],
-          stock: hasilAkhir[4]
+          times: hasilAkhir[1] && hasilAkhir[1].split('X')[0] * 1,
+          route: hasilAkhir[2],
+          stock: hasilAkhir[3],
+          expDate: hasilAkhir[4]
         };
+        console.log('data ==>', result);
 
-        const prescriptionSchedule = createPrescription(data, null);
-
-        res.status(200).json(prescriptionSchedule);
+        createPrescription(result, null)
+          .then(prescriptionSchedule => {
+            console.log('success', prescriptionSchedule);
+            res.status(200).json(prescriptionSchedule);
+          })
+          .catch(err => {
+            console.log('failed', err);
+            res.status(400).json('Failed to process image');
+          });
       }
     });
   }
