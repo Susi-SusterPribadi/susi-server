@@ -188,7 +188,7 @@ const createPrescription = async (data, emmit) => {
             return prescriptionWithSchedule
         }
     } catch (error) {
-        return error
+        console.log(error)
     }
 }
 
