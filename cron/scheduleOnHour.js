@@ -19,11 +19,6 @@ module.exports = () => {
             if(err) console.log("connect with mLab on error : ", err)
             try{
                 console.log("===============================================")
-                    let now = new Date()
-                        now.setSeconds(0)
-                    let nextMinute =  new Date( now.getTime() + 60000)
-                        nextMinute.setSeconds(0)
-                    
                     let scheduleOnDb = await Schedule.find({
                             time:{
                                 $gt : (new Date()).setSeconds(-60),
@@ -32,7 +27,7 @@ module.exports = () => {
                         }).populate('userId').populate('prescriptionId').exec()
 
                     
-                    console.log("time on tick on minute : ", now.toLocaleString(), "; range :", nextMinute.toLocaleString())
+                    console.log("time on tick on minute : ", new Date().toLocaleString(), "; range :", new Date( new Date().setSeconds(60) ).toLocaleString() )
                     console.log("--------------------------------------------------")
                     scheduleOnDb.forEach(e => {
                         console.log(`${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`)
