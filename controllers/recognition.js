@@ -34,7 +34,7 @@ module.exports = {
           arrResult.push(obat.DetectedText)
         })
 
-        arrResult.splice(1, 4).map(obatSplit => {
+        arrResult.splice(1, 5).map(obatSplit => {
           hasilAkhir.push(obatSplit.split(': ')[1])
         })
 
