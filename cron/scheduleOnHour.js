@@ -26,8 +26,8 @@ module.exports = () => {
                     
                     let scheduleOnDb = await Schedule.find({
                             time:{
-                                $gte : now,
-                                $lt : nextMinute
+                                $gt : (new Date()).setSeconds(-60),
+                                $lte : (new Date()).setSeconds(0)
                             },
                         }).populate('userId').populate('prescriptionId').exec()
 
