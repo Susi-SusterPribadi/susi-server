@@ -30,6 +30,19 @@ const create = async ({body, query}, res) => {
     }
 }
 
+const updateByConfig = (arrOfSchedule, time) => {
+    arrOfSchedule.forEach( async e => {
+        let splitConfig = time.split(':')
+        let hour = Number(splitConfig[0])
+        let minute = Number(splitConfig[1])
+        let newTime = new Date(e.time)
+            newTime.setHours(hour)
+            newTime.setMinutes(minute)
+        await Schedule.updateOne({_id: e._id}, {$set:{time:newTime}})
+    })
+}
+
+
 const update = async ({body, query}, res) => {
     try{
         let config = await Config.findOneAndUpdate({userId: query.userId}, { $set:body})
@@ -41,24 +54,17 @@ const update = async ({body, query}, res) => {
                                             isDrunk: false,
                                             onSchedule: 'morning'
                                         })
-        
-        scheduleWillUpdateOnMorning.forEach( e => {
-            let splitConfig = body.morning.split(':')
-            let hour = Number(splitConfig[0])
-            let minute = Number(splitConfig[1])
-            let newTime = new Date(e.time)
-                newTime.setHours(hour)
-                newTime.setMinutes(minute)
-            
-            
-            console.log("morning update time :", newTime.toLocaleString()) 
-        })
+
+        // variable : arrOfSchedule, body.time:morning, afternoon, night
+
+        await updateByConfig(scheduleWillUpdateOnMorning, body.morning)
         
         let scheduleWillUpdateOnAfternoon = await Schedule.find({
                                             userId:query.userId,
                                             isDrunk: false,
                                             onSchedule: 'afternoon'
                                         })
+        await updateByConfig(scheduleWillUpdateOnAfternoon, body.afternoon)
                                         
         let scheduleWillUpdateOnNight = await Schedule.find({
                                             userId:query.userId,
@@ -66,11 +72,7 @@ const update = async ({body, query}, res) => {
                                             onSchedule: 'night'
                                         })
         
-        
-        
-        console.log("update config morning :", scheduleWillUpdateOnMorning, body.morning)
-        console.log("update config afternoon :", scheduleWillUpdateOnAfternoon, body.afternoon)
-        console.log("update config night :", scheduleWillUpdateOnNight, body.night)
+        await updateByConfig(scheduleWillUpdateOnNight, body.night)
         
         //=====================================
         let newConfig = await Config.findOne(config._id)
@@ -80,6 +82,7 @@ const update = async ({body, query}, res) => {
         res.status(400).json({message:error})
     }
 }
+
 
 
 
