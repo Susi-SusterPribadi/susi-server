@@ -16,24 +16,28 @@ module.exports = () => {
       mongoose.connect(MONGO_URI[process.env.NODE_ENV], { useNewUrlParser: true, useCreateIndex: true } ,async function(err){
             if(err) console.log("connect with mLab on error : ", err)
             try{
-                let now = new Date()
-                let nextMinute =  new Date( now.getTime() + 60000)
-                
-                let scheduleOnDb = await Schedule.find({
-                        time: {
-                            $gte: now,
-                            $lt: nextMinute
-                        }
-                    }).populate('userId').populate('prescriptionId').exec()
+                console.log("===============================================")
+                    let now = new Date()
+                        now.setSeconds(0)
+                    let nextMinute =  new Date( now.getTime() + 60000)
+                        nextMinute.setSeconds(0)
+                    
+                    let scheduleOnDb = await Schedule.find({
+                            time:{
+                                $gte : now,
+                                $lt : nextMinute
+                            },
+                        }).populate('userId').populate('prescriptionId').exec()
 
-                console.log(new Date().toLocaleString())
-                console.log(now.toLocaleString(), nextMinute.toLocaleString())
+                    
+                    console.log("time on tick on minute : ", now.toLocaleString(), "; range :", nextMinute.toLocaleString())
+                    console.log("--------------------------------------------------")
+                    scheduleOnDb.forEach(e => {
+                        console.log(`${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`)
+                    })
+                    console.log("--------------------------------------------------")
                 
-                scheduleOnDb.forEach(e => {
-                    console.log(`${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`)
-                })
-                
-                console.log("-=======++++++++++++++++++++++++++")          
+                    console.log("===============================================")          
             } catch (error) {
                 console.log(error)
             }
