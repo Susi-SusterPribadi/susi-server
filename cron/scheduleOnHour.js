@@ -4,11 +4,13 @@ const mongoose = require('mongoose')
 const Schedule = require('../models/schedule')
 const User = require('../models/users')
 const Prescription = require('../models/prescription')
-
+const io = require('../helpers/socketClient')
 module.exports = () => {
  console.log("cron on triger")
 
  new CronJob(`0 */1 * * * *`, function() {
+    io.emit('message', 'from API ')
+    console.log('testtttttt')
     let MONGO_URI = {
         development:`mongodb://${process.env.dbProdAdm}:${process.env.dbProdAdm}@ds259912.mlab.com:59912/susidb`,
         test:`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
@@ -34,6 +36,8 @@ module.exports = () => {
                     console.log("--------------------------------------------------")
                     scheduleOnDb.forEach(e => {
                         console.log(`${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`)
+                        let message = `${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`
+                        // io.emit('message', message )
                     })
                     console.log("--------------------------------------------------")
                 
