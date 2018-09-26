@@ -1,12 +1,5 @@
 const User = require('../models/users')
-
-var ValidationErrors = {
-    REQUIRED: 'required',
-    NOTVALID: 'notvalid',
-    /* ... */
-};
-  
-const get = function(req, res){
+  const get = function(req, res){
     User
     .find()
     .then(function(user){

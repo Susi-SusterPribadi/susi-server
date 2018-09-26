@@ -12,8 +12,14 @@ const PrescriptionSchema = new Schema({
         required: "Please input rules of medicine",
     },
     expDate:{
-        type: String, 
+        type: Date, 
         required: "Please input expire date",
+        validate: {
+            validator: function (value){
+                return new Date() <= new Date(value)
+            },
+            message: "your medicine was expired!"
+        }
     },
     stock: Number,
     times: Number,
@@ -22,7 +28,13 @@ const PrescriptionSchema = new Schema({
     isActive: Boolean
 }, { timestamps : true })
 
+// PrescriptionSchema.pre('save', function(next){
+
+// })
+
 const Prescription = mongoose.model('Prescription', PrescriptionSchema)
+
+
 
 module.exports = Prescription
 

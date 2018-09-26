@@ -13,26 +13,6 @@ const generateSchedule = async (config, prescription) => {
   let times = prescription.times;
   console.log(stock, times);
   //to make function need parameter : config, times, stock, return array of scheduleOfDay
-  if (times > 3) {
-    let interval = 24 / times;
-    while (stock > 0) {
-      for (let i = 0; i < times; i++) {
-        let scheduleGetTime = startDatePrescription;
-        // console.log(prescription._id, ', on :', scheduleGetTime)
-        let schedule = new Schedule({
-          userId: prescription.userId,
-          prescriptionId: prescription._id,
-          time: scheduleGetTime
-        });
-        let scheduleSave = await schedule.save();
-        arrSchedule.push(scheduleSave._id);
-        startDatePrescription.setHours(
-          startDatePrescription.getHours() + interval
-        );
-      }
-      stock -= times;
-    }
-  } else {
     let timeOnConfig = [];
     let minuteOnConfig = [];
     let secondOnConfig = [];
@@ -80,6 +60,7 @@ const generateSchedule = async (config, prescription) => {
       default:
         [];
     }
+
     //function getFirstTime
     let firstHours = startDatePrescription.getHours().toLocaleString();
     let firstDrugs = 0;
@@ -134,10 +115,6 @@ const generateSchedule = async (config, prescription) => {
         stock--;
       }
     }
-  }
-
-  // console.log(schedule)
-  // tomorrow.setDate(tomorrow.getDate() + 1);
 
   return arrSchedule;
 };
@@ -146,6 +123,7 @@ const get = async ({ query }, res) => {
   try {
     let prescription = await Prescription.find({ userId: query.userId })
       .populate('schedule')
+      .populate('userId')
       .exec();
     console.log(prescription);
     res.status(200).json({ body: prescription });
@@ -155,7 +133,6 @@ const get = async ({ query }, res) => {
 };
 
 const add = async ({ body }, res) => {
-  // if( new Date() < new Date(body.expDate)){
   try {
     let newPrescription = await createPrescription(body, null);
     console.log(
@@ -167,9 +144,6 @@ const add = async ({ body }, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-  // } else {
-  //     res.status(400).json({message:'your medicine is expired!'})
-  // }
 };
 
 const createPrescription = async (data, emmit) => {
@@ -179,18 +153,17 @@ const createPrescription = async (data, emmit) => {
     let config = await Config.findOne({ userId: data.userId });
     // console.log("find prescription : ",prescriptionList)
     if (prescriptionList) {
-      let newPrescription = prescriptionList;
       await Schedule.deleteMany({ prescriptionId: prescriptionList });
+      let newPrescription = new Prescription(prescriptionList);
       newPrescription.schedule = [];
       newPrescription.stock = data.stock;
       newPrescription.times = data.times;
+      newPrescription.expDate = data.expDate;
       let schedule = await generateSchedule(config, newPrescription);
       newPrescription.schedule = schedule;
 
-      await Prescription.updateOne(
-        { _id: newPrescription._id },
-        { $set: newPrescription }
-      );
+      await newPrescription.save()
+
       let prescriptionWithSchedule = await Prescription.findOne({
         _id: newPrescription._id
       })
@@ -198,6 +171,7 @@ const createPrescription = async (data, emmit) => {
         .exec();
 
       return prescriptionWithSchedule;
+
     } else {
       let prescription = new Prescription(data);
       let prescriptionOnSave = await prescription.save();

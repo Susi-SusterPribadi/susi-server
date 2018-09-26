@@ -1,13 +1,11 @@
 require('dotenv').config()
-const mongoose = require('mongoose')
+
 const Schedule = require('../models/schedule')
 const Prescription = require('../models/prescription')
 const Config = require('../models/config')
-const Failed = require('../models/failed')
-let MONGO_URI = {
-    development:`mongodb://${process.env.dbProdAdm}:${process.env.dbProdAdm}@ds259912.mlab.com:59912/susidb`,
-    test:`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
-  }
+
+//helpers
+const routeMedicine = require('../helpers/route')
 
 
 const drugsSafely = async (userId, emmit) => {
@@ -20,23 +18,26 @@ const drugsSafely = async (userId, emmit) => {
             time: {
                 $lt: new Date()
             },
-            isDrunk: false
+            isDrunk: false,
+            isFailed: false
         }
         let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         console.log("drugsSafely at ", new Date().toLocaleString())
       
         if(schedules.length != 0 ){
-            let medicines = Promise.all(schedules.map(async schedule => {
+            let medicines = await  Promise.all(schedules.map(async schedule => {
                                 let id = schedule._id
                                 await Schedule.updateOne({ _id:id }, {$set:{isDrunk: true}})
                                 await Prescription.updateOne({_id:schedule.prescriptionId._id}, {$inc:{stock: -1}})
-                                return schedule.prescriptionId.label
+                                let scheduleUpdate = await Schedule.findOne({_id:id})
+                                console.log(scheduleUpdate)
+                                return scheduleUpdate
                             }))
-            console.log(medicines)
+            
             return medicines
         }else {
             console.log("kamu ga punya jadwal minum obat, saat nya menjaga kesehatan")
-            return ["kamu ga punya jadwal minum obat, saat nya menjaga kesehatan"]
+            return;
         }
 
     // })
@@ -82,24 +83,17 @@ const pendingDrugs = async (userId, emmit) => {
                                     console.log(schedule.onSchedule, "schedule on config : ", scheduleOnConfig ," old :", oldTime.toLocaleString(), "early : ", timeIncrement.toLocaleString(), "rule: ", ruleOfSchedule.toLocaleString())
                                 if(timeIncrement > ruleOfSchedule){
                                     //created failed on database
-
-                                    let onFailed = await Schedule.findOne({_id:schedule._id})
-                                    let newFailed = new Failed({
-                                        userId: onFailed.userId, 
-                                        prescriptionId: onFailed.prescriptionId,
-                                        time: new Date(onFailed.time), 
-                                        isDrunk:onFailed.isDrunk, 
-                                        onSchedule: onFailed.onSchedule
-                                    })
-                                    await newFailed.save()
-
+                                    await Schedule.updateOne({_id:id}, {$set:{isFailed:true}})
                                     console.log(`oppss.. medicine is forgeted, ${schedule.prescriptionId.label}`)
-                                    return `oppss.. medicine is forgeted, ${schedule.prescriptionId.label}`
-                                    
+                                    // return `dicine is forgeted, ${schedule.prescriptionId.label}oppss.. me`
+                                    let outOfTimeDrug = await Schedule.findOne({_id:id})
+                                    return outOfTimeDrug;
                                 }else {
                                     await Schedule.updateOne({_id:id}, {$set:{time:timeIncrement}})
                                     console.log('injury time')
-                                    return `kamu menunda minum ${schedule.prescriptionId.label} selama 2 menit`
+                                    // return `kamu menunda minum ${schedule.prescriptionId.label} selama 2 menit`
+                                    let pendingDrug =  await Schedule.findOne({_id:id})
+                                    return pendingDrug;
                                 }                    
                     }))
                     
@@ -118,39 +112,42 @@ const scheduleDrugs = async (userId, emmit) => {
                 $gte: early,
                 $lt: late
             },
-            isDrunk: false
+            isDrunk: false,
+            isFailed: false
         }
         let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         console.log("get own schedule at ", new Date().toLocaleString())
+        
         if(schedules.length != 0 ){
-            let reply = schedules.map( schedule => {
-                    // console.log( `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
-                    return `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`
+            let reply = schedules.filter( schedule => {
+                    console.log( `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
+                    return schedule.isDrunk === false
                 })
-            console.log(reply)
             return reply
         }else {
             console.log("kamu ga punya jadwal minum obat, saat nya menjaga kesehatan")
-            return ["kamu ga punya jadwal minum obat, saat nya menjaga kesehatan"]
+            return;
         }
 }
 
 const failedDrugs = async (userId, emmit) => {      
         let query = {
             userId: userId,
+            isFailed: true,
+            isDrunk: false
         }
-        let schedules = await Failed.find(query).populate('userId').populate('prescriptionId').exec()
+        let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         
         if(schedules.length != 0 ){
-            let reply = schedules.map(schedule => {
-                            // console.log( `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
-                            return `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`
-                        })
-            console.log(reply)
-            return reply
+            // let reply = schedules.map(schedule => {
+            //                 console.log( `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
+            //                 return `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`
+            //             })
+            // console.log(reply)
+            return schedules
         }else {
             console.log("kamu ga punya jadwal minum obat, saat nya menjaga kesehatan")
-            return ["kamu ga punya jadwal minum obat, saat nya menjaga kesehatan"]
+            return;
         }
 }
 
