@@ -6,6 +6,7 @@ const ScheduleSchema = new Schema({
     prescriptionId: {type: Schema.Types.ObjectId, ref: 'Prescription' },
     time: Date,
     isDrunk: Boolean,
+    isFailed: { type: Boolean, default: false },
     onSchedule: String
 }, { timestamps:true})
 

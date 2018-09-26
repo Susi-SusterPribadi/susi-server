@@ -1,13 +1,11 @@
 require('dotenv').config()
-const mongoose = require('mongoose')
+
 const Schedule = require('../models/schedule')
 const Prescription = require('../models/prescription')
 const Config = require('../models/config')
-const Failed = require('../models/failed')
-let MONGO_URI = {
-    development:`mongodb://${process.env.dbProdAdm}:${process.env.dbProdAdm}@ds259912.mlab.com:59912/susidb`,
-    test:`mongodb://${process.env.dbTestAdm}:${process.env.dbTestAdm}@ds259912.mlab.com:59912/susidbtest`
-  }
+
+//helpers
+const routeMedicine = require('../helpers/route')
 
 
 const drugsSafely = async (userId, emmit) => {
@@ -20,17 +18,18 @@ const drugsSafely = async (userId, emmit) => {
             time: {
                 $lt: new Date()
             },
-            isDrunk: false
+            isDrunk: false,
+            isFailed: false
         }
         let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         console.log("drugsSafely at ", new Date().toLocaleString())
       
         if(schedules.length != 0 ){
-            let medicines = Promise.all(schedules.map(async schedule => {
+            let medicines = await  Promise.all(schedules.map(async schedule => {
                                 let id = schedule._id
                                 await Schedule.updateOne({ _id:id }, {$set:{isDrunk: true}})
                                 await Prescription.updateOne({_id:schedule.prescriptionId._id}, {$inc:{stock: -1}})
-                                return schedule.prescriptionId.label
+                                return `hi, ${schedule.userId.name}, jadwal ${schedule.prescriptionId.label} 'sudah oke`
                             }))
             console.log(medicines)
             return medicines
@@ -82,17 +81,7 @@ const pendingDrugs = async (userId, emmit) => {
                                     console.log(schedule.onSchedule, "schedule on config : ", scheduleOnConfig ," old :", oldTime.toLocaleString(), "early : ", timeIncrement.toLocaleString(), "rule: ", ruleOfSchedule.toLocaleString())
                                 if(timeIncrement > ruleOfSchedule){
                                     //created failed on database
-
-                                    let onFailed = await Schedule.findOne({_id:schedule._id})
-                                    let newFailed = new Failed({
-                                        userId: onFailed.userId, 
-                                        prescriptionId: onFailed.prescriptionId,
-                                        time: new Date(onFailed.time), 
-                                        isDrunk:onFailed.isDrunk, 
-                                        onSchedule: onFailed.onSchedule
-                                    })
-                                    await newFailed.save()
-
+                                    await Schedule.updateOne({_id:id}, {$set:{isFailed:true}})
                                     console.log(`oppss.. medicine is forgeted, ${schedule.prescriptionId.label}`)
                                     return `oppss.. medicine is forgeted, ${schedule.prescriptionId.label}`
                                     
@@ -118,14 +107,16 @@ const scheduleDrugs = async (userId, emmit) => {
                 $gte: early,
                 $lt: late
             },
-            isDrunk: false
+            isDrunk: false,
+            isFailed: false
         }
         let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         console.log("get own schedule at ", new Date().toLocaleString())
+        
         if(schedules.length != 0 ){
             let reply = schedules.map( schedule => {
                     // console.log( `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
-                    return `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`
+                    return `halo  ${schedule.userId.name}, ${routeMedicine(schedule.prescriptionId.route)} ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}. Saat ini ${schedule.isDrunk ? 'sudah oke' : 'belom oke'}`
                 })
             console.log(reply)
             return reply
@@ -138,8 +129,10 @@ const scheduleDrugs = async (userId, emmit) => {
 const failedDrugs = async (userId, emmit) => {      
         let query = {
             userId: userId,
+            isFailed: true,
+            isDrunk: false
         }
-        let schedules = await Failed.find(query).populate('userId').populate('prescriptionId').exec()
+        let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         
         if(schedules.length != 0 ){
             let reply = schedules.map(schedule => {

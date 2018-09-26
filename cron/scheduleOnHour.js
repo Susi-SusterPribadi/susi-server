@@ -4,6 +4,9 @@ const mongoose = require('mongoose')
 const Schedule = require('../models/schedule')
 const User = require('../models/users')
 const Prescription = require('../models/prescription')
+
+//helpers
+// const routeMedicine = require('../helpers/route')
 // const io = require('../helpers/socketClient')
 module.exports = () => {
  console.log("cron on triger")
@@ -26,16 +29,28 @@ module.exports = () => {
                             },
                         }).populate('userId').populate('prescriptionId').exec()
 
-                    
-                    console.log("time on tick on minute : ", new Date().toLocaleString(), "; range :", new Date( new Date().setSeconds(60) ).toLocaleString() )
+                    console.log("--------------------------------------------------") 
+                    console.log("time on tick on minute : ", new Date(new Date().setSeconds(0)).toLocaleString(), "; range :", new Date( new Date().setSeconds(60) ).toLocaleString() )
                     console.log("--------------------------------------------------")
-                    scheduleOnDb.forEach(e => {
+                    scheduleOnDb.forEach(async e => {
                         console.log(`${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`)
                         let message = `${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`
                         // io.emit('message', message )
                     })
-                    console.log("--------------------------------------------------")
-                
+                    // console.log("--------------------------------------------------")
+                    // let scheduleMiss = await Schedule.find({
+                    //     time:{
+                    //         $lt: new Date()
+                    //     },
+                    //     isDrunk: false,
+                    //     isFailed: false
+                    // }).populate('userId').populate('prescriptionId').exec()
+                    
+                    // scheduleMiss.forEach(  async e => {
+                    //     console.log(console.log(`hi, ${e.userId.name} lupa ${e.prescriptionId.route}  obat : ${e.prescriptionId.label}`))
+                    //     await Schedule.updateOne({_id:e._id}, {$set: { isFailed: true } })
+                    // })
+
                     console.log("===============================================")          
             } catch (error) {
                 console.log(error)
