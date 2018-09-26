@@ -1,21 +1,10 @@
 require('dotenv').config();
 const CronJob = require('cron').CronJob;
-<<<<<<< HEAD
-const mongoose = require('mongoose')
-const Schedule = require('../models/schedule')
-const User = require('../models/users')
-const Prescription = require('../models/prescription')
-
-//helpers
-// const routeMedicine = require('../helpers/route')
-// const io = require('../helpers/socketClient')
-=======
 const mongoose = require('mongoose');
 const Schedule = require('../models/schedule');
 
 const io = require('../helpers/socketClient');
 
->>>>>>> add socket client
 module.exports = () => {
   console.log('cron on triger');
 
