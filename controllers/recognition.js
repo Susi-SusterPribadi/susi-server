@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 
 const { createPrescription } = require('./prescription');
+const io = require('../helpers/socketClient');
 
 const rekognition = new AWS.Rekognition({
   apiVersion: '2016-06-27',
@@ -38,9 +39,6 @@ module.exports = {
           hasilAkhir.push(obatSplit.split(': ')[1]);
         });
 
-        console.log('<============== hasil recognition ========> ');
-        console.log(hasilAkhir);
-
         const result = {
           userId: req.userId,
           label: hasilAkhir[0],
@@ -49,11 +47,19 @@ module.exports = {
           stock: hasilAkhir[3],
           expDate: hasilAkhir[4]
         };
-        console.log('data ==>', result);
 
         createPrescription(result, null)
           .then(prescriptionSchedule => {
-            console.log('success', prescriptionSchedule);
+            console.log('success create prescription');
+
+            io.emit('prescriptionCreated', {
+              medicineLabel: result.label,
+              dosePerDay: result.times,
+              medicineRoute: result.route,
+              total: result.stock,
+              expirationDate: result.expDate
+            });
+
             res.status(200).json(prescriptionSchedule);
           })
           .catch(err => {

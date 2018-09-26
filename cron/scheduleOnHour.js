@@ -67,12 +67,10 @@ module.exports = () => {
                   e.prescriptionId.label
                 }, stock : ${e.prescriptionId.stock}`
               );
-              io.emit(
-                'notification',
-                `${e.onSchedule}, halo ${e.userId.name} saatnya minum obat : ${
-                  e.prescriptionId.label
-                }, stock : ${e.prescriptionId.stock}`
-              );
+              io.emit('medicationRemind', {
+                username: e.userId.name,
+                medicineLabel: e.prescriptionId.label
+              });
             });
             console.log('--------------------------------------------------');
 
