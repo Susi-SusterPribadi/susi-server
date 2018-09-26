@@ -123,6 +123,7 @@ const get = async ({ query }, res) => {
   try {
     let prescription = await Prescription.find({ userId: query.userId })
       .populate('schedule')
+      .populate('userId')
       .exec();
     console.log(prescription);
     res.status(200).json({ body: prescription });

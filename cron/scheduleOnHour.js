@@ -37,19 +37,7 @@ module.exports = () => {
                         let message = `${e.onSchedule} ini ${e.userId.name} saatnya minum obat : ${e.prescriptionId.label}, stock : ${e.prescriptionId.stock}`
                         // io.emit('message', message )
                     })
-                    // console.log("--------------------------------------------------")
-                    // let scheduleMiss = await Schedule.find({
-                    //     time:{
-                    //         $lt: new Date()
-                    //     },
-                    //     isDrunk: false,
-                    //     isFailed: false
-                    // }).populate('userId').populate('prescriptionId').exec()
                     
-                    // scheduleMiss.forEach(  async e => {
-                    //     console.log(console.log(`hi, ${e.userId.name} lupa ${e.prescriptionId.route}  obat : ${e.prescriptionId.label}`))
-                    //     await Schedule.updateOne({_id:e._id}, {$set: { isFailed: true } })
-                    // })
 
                     console.log("===============================================")          
             } catch (error) {

@@ -29,13 +29,15 @@ const drugsSafely = async (userId, emmit) => {
                                 let id = schedule._id
                                 await Schedule.updateOne({ _id:id }, {$set:{isDrunk: true}})
                                 await Prescription.updateOne({_id:schedule.prescriptionId._id}, {$inc:{stock: -1}})
-                                return `hi, ${schedule.userId.name}, jadwal ${schedule.prescriptionId.label} 'sudah oke`
+                                let scheduleUpdate = await Schedule.findOne({_id:id})
+                                console.log(scheduleUpdate)
+                                return scheduleUpdate
                             }))
-            console.log(medicines)
+            
             return medicines
         }else {
             console.log("kamu ga punya jadwal minum obat, saat nya menjaga kesehatan")
-            return ["kamu ga punya jadwal minum obat, saat nya menjaga kesehatan"]
+            return;
         }
 
     // })
@@ -83,12 +85,15 @@ const pendingDrugs = async (userId, emmit) => {
                                     //created failed on database
                                     await Schedule.updateOne({_id:id}, {$set:{isFailed:true}})
                                     console.log(`oppss.. medicine is forgeted, ${schedule.prescriptionId.label}`)
-                                    return `oppss.. medicine is forgeted, ${schedule.prescriptionId.label}`
-                                    
+                                    // return `dicine is forgeted, ${schedule.prescriptionId.label}oppss.. me`
+                                    let outOfTimeDrug = await Schedule.findOne({_id:id})
+                                    return outOfTimeDrug;
                                 }else {
                                     await Schedule.updateOne({_id:id}, {$set:{time:timeIncrement}})
                                     console.log('injury time')
-                                    return `kamu menunda minum ${schedule.prescriptionId.label} selama 2 menit`
+                                    // return `kamu menunda minum ${schedule.prescriptionId.label} selama 2 menit`
+                                    let pendingDrug =  await Schedule.findOne({_id:id})
+                                    return pendingDrug;
                                 }                    
                     }))
                     
@@ -114,15 +119,14 @@ const scheduleDrugs = async (userId, emmit) => {
         console.log("get own schedule at ", new Date().toLocaleString())
         
         if(schedules.length != 0 ){
-            let reply = schedules.map( schedule => {
-                    // console.log( `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
-                    return `halo  ${schedule.userId.name}, ${routeMedicine(schedule.prescriptionId.route)} ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}. Saat ini ${schedule.isDrunk ? 'sudah oke' : 'belom oke'}`
+            let reply = schedules.filter( schedule => {
+                    console.log( `halo  ${schedule.userId.name}  obat yang harus kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
+                    return schedule.isDrunk === false
                 })
-            console.log(reply)
             return reply
         }else {
             console.log("kamu ga punya jadwal minum obat, saat nya menjaga kesehatan")
-            return ["kamu ga punya jadwal minum obat, saat nya menjaga kesehatan"]
+            return;
         }
 }
 
@@ -135,15 +139,15 @@ const failedDrugs = async (userId, emmit) => {
         let schedules = await Schedule.find(query).populate('userId').populate('prescriptionId').exec()
         
         if(schedules.length != 0 ){
-            let reply = schedules.map(schedule => {
-                            // console.log( `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
-                            return `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`
-                        })
-            console.log(reply)
-            return reply
+            // let reply = schedules.map(schedule => {
+            //                 console.log( `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`)
+            //                 return `halo  ${schedule.userId.name}  obat yang tidak kamu minum ${schedule.prescriptionId.label}, pada ${schedule.onSchedule} pukul ${schedule.time.toLocaleString()}`
+            //             })
+            // console.log(reply)
+            return schedules
         }else {
             console.log("kamu ga punya jadwal minum obat, saat nya menjaga kesehatan")
-            return ["kamu ga punya jadwal minum obat, saat nya menjaga kesehatan"]
+            return;
         }
 }
 
