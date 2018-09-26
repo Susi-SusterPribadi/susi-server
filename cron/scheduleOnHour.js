@@ -12,8 +12,6 @@ const Prescription = require('../models/prescription')
 =======
 const mongoose = require('mongoose');
 const Schedule = require('../models/schedule');
-const User = require('../models/users');
-const Prescription = require('../models/prescription');
 
 const io = require('../helpers/socketClient');
 
