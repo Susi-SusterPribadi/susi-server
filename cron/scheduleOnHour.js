@@ -2,11 +2,6 @@ require('dotenv').config();
 const CronJob = require('cron').CronJob;
 const mongoose = require('mongoose');
 const Schedule = require('../models/schedule');
-<<<<<<< HEAD
-=======
-const User = require('../models/users');
-const Prescription = require('../models/prescription');
->>>>>>> e602d805491b441e577c399ef7d16717ef77c43c
 
 const io = require('../helpers/socketClient');
 
@@ -59,19 +54,10 @@ module.exports = () => {
                   e.prescriptionId.label
                 }, stock : ${e.prescriptionId.stock}`
               );
-<<<<<<< HEAD
               io.emit('medicationRemind', {
                 username: e.userId.name,
                 medicineLabel: e.prescriptionId.label
               });
-=======
-              io.emit(
-                'notification',
-                `${e.onSchedule}, halo ${e.userId.name} saatnya minum obat : ${
-                  e.prescriptionId.label
-                }, stock : ${e.prescriptionId.stock}`
-              );
->>>>>>> e602d805491b441e577c399ef7d16717ef77c43c
             });
             console.log('--------------------------------------------------');
 
